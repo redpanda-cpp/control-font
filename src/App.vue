@@ -1,6 +1,6 @@
 <template>
   <main>
-    <FileUpload @upload="onAdvancedUpload($event)" accept="font/ttf" :auto="true" customUpload @uploader="loadFont">
+    <FileUpload @upload="onAdvancedUpload($event)" :auto="true" customUpload @uploader="loadFont">
       <template #empty>
         <p>Drag and drop font here to load.</p>
       </template>
@@ -293,11 +293,19 @@ export default {
       const path = new opentype.Path();
       const geom = this.config.geometry;
       const upm = this.font.unitsPerEm;
-      path.moveTo(0, upm * geom.yTop);
-      path.lineTo(0, upm * geom.yBottom);
-      path.lineTo(width, upm * geom.yBottom);
-      path.lineTo(width, upm * geom.yTop);
-      path.close();
+      if (this.font.outlinesFormat == 'truetype') {
+        path.moveTo(0, upm * geom.yTop);
+        path.lineTo(0, upm * geom.yBottom);
+        path.lineTo(width, upm * geom.yBottom);
+        path.lineTo(width, upm * geom.yTop);
+        path.close();
+      } else {
+        path.moveTo(0, upm * geom.yTop);
+        path.lineTo(width, upm * geom.yTop);
+        path.lineTo(width, upm * geom.yBottom);
+        path.lineTo(0, upm * geom.yBottom);
+        path.close();
+      }
       return path;
     },
   },
