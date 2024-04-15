@@ -49,7 +49,10 @@
     </FieldSet>
     <FieldSet legend="Preview">
       <div class="flex flex-wrap gap-3">
-        <canvas v-for="control in controlCharacters" :id="`preview-${control.codePoint}`"></canvas>
+        <div v-for="control in controlCharacters" class="preview-item">
+          <canvas :id="`preview-${control.codePoint}`"></canvas>
+          <div>{{ unicodeRepr(control.codePoint) }}</div>
+        </div>
       </div>
     </FieldSet>
   </main>
@@ -71,11 +74,11 @@ export default {
       dpr: window.devicePixelRatio,
       config: {
         geometry: {
-          scale: 0.8,
+          scale: 1,
           sideMargin: 0,
           tracking: 0,
-          yShiftMax: 0.2,
-          yShiftMin: -0.1,
+          yShiftMax: 0,
+          yShiftMin: 0,
           yTop: 0.8,
           yBottom: -0.2,
         },
@@ -114,6 +117,12 @@ export default {
         { codePoint: 0x1E, display: 'RS' },
         { codePoint: 0x1F, display: 'US' },
         { codePoint: 0x7F, display: 'DEL' },
+        { codePoint: 0xFFFFD, display: '\u02FD', inverse: false },  // space
+        { codePoint: 0xFFFFC, display: '\u2192', inverse: false },  // tab (arrow right)
+        { codePoint: 0xFFFFB, display: '\u21A9' },  // line break (hooked arrow left)
+        { codePoint: 0xFFFFA, display: '\u2193' },  // soft break (arrow down)
+        { codePoint: 0xFFFF9, display: 'NBSP' },
+        { codePoint: 0xFFFF8, display: 'IDSP' },
       ],
     }
   },
@@ -165,12 +174,17 @@ export default {
           const ch = control.display[i];
           const scaledGlyph = this.scaledGlyphs[ch];
           width += upm * geom.tracking;
-          const yOffset = upm * (geom.yShiftMax * (length - 1 - i) + geom.yShiftMin * i) / (length - 1);
+          let yOffset;
+          if (length > 1)
+            yOffset = upm * (geom.yShiftMax * (length - 1 - i) + geom.yShiftMin * i) / (length - 1);
+          else
+            yOffset = upm * (geom.yShiftMax + geom.yShiftMin) / 2;
           path.extend(this.shiftPath(scaledGlyph.path, width, yOffset));
           width += scaledGlyph.advanceWidth;
         }
         width += upm * geom.sideMargin;
-        path.extend(this.reversedBox(width));
+        if (control.inverse !== false)
+          path.extend(this.reversedBox(width));
         const glyph = new opentype.Glyph({
           name: control.display,
           unicode: control.codePoint,
@@ -308,6 +322,12 @@ export default {
       }
       return path;
     },
+    unicodeRepr(codePoint) {
+      const hex = codePoint.toString(16).toUpperCase();
+      if (hex.length <= 4)
+        return `U+${'0'.repeat(4 - hex.length)}${hex}`;
+      return `U+${hex}`;
+    },
   },
   components: {
     Button,
@@ -320,4 +340,7 @@ export default {
 </script>
 
 <style scoped>
+.preview-item {
+  text-align: center;
+}
 </style>
