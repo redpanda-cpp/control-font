@@ -119,8 +119,8 @@ export default {
         { codePoint: 0x7F, display: 'DEL' },
         { codePoint: 0xFFFFD, display: '\u02FD', inverse: false },  // space
         { codePoint: 0xFFFFC, display: '\u2192', inverse: false },  // tab (arrow right)
-        { codePoint: 0xFFFFB, display: '\u21A9' },  // line break (hooked arrow left)
-        { codePoint: 0xFFFFA, display: '\u2193' },  // soft break (arrow down)
+        { codePoint: 0xFFFFB, display: '\u21B5', inverse: false },  // line break (arrow down-left)
+        { codePoint: 0xFFFFA, display: '\u2193', inverse: false },  // soft break (arrow down)
         { codePoint: 0xFFFF9, display: 'NBSP' },
         { codePoint: 0xFFFF8, display: 'IDSP' },
       ],
